@@ -55,7 +55,11 @@ public class MainController {
 
         } else {
             map.put("error", false);
-            map.put(rootWord.getRootWord(), rootWord.getPosTag());
+            map.put("originalWord",rootWord.getOriginalWord());
+            map.put("rootWord",rootWord.getRootWord());
+            map.put("posId",rootWord.getPosId());
+            map.put("posTag",rootWord.getPosTag());
+
         }
         return map;
     }

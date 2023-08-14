@@ -1,18 +1,21 @@
 package com.ydsdil.opennlp;
 
 import com.ydsdil.opennlp.model.RootWord;
-import io.reactivex.schedulers.Schedulers;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class WelcomeController {
@@ -29,47 +32,30 @@ public class WelcomeController {
         final String[] result = {""};
         final long startTime = System.currentTimeMillis();
 
-        try {
-            PosTaggerSingleton.INSTANCE().setUpOpenNlpPosTagger()
-                    .subscribeOn(Schedulers.io())
-                    .doOnComplete(() -> {
-                        long endTime = System.currentTimeMillis();
-
-                        System.out.println("Took: " + (endTime - startTime));
-                    })
-                    .observeOn(Schedulers.single())
-                    .subscribe(aLong -> {
-                        System.out.println("POS Tagger kuruldu.");
-                    });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-        return "POS Tagger kuruldu.";
+        return "Welcome";
     }
 
-    @GetMapping("/tagger")
-    public String getPos() {
+    @PostMapping(path = "/tagger", produces= MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> getPos(@RequestParam(value="param1") String word, @RequestParam(value="param2") String sentence) {
+
+        RootWord rootWord = new RootWord();
 
         final String[] result = {""};
-        if (PosTaggerSingleton.INSTANCE().isPosTaggerAvailable()) {
 
             try {
-                PosTaggerSingleton.INSTANCE().findPosWithOpenNlp("important", "This is an important decision.")
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.single())
-                        .subscribe(rootWord -> {
-                            result[0] = rootWord.getRootWord() + " | " + rootWord.getPosTag();
-                            //printResult(rootWord);
-                        });
+                rootWord = PosTaggerSingleton.INSTANCE().findPosWithOpenNlp(word, sentence);
+
+                System.out.println("Deneme: " + rootWord.getPosTag());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        }
 
-        return result[0];
+        Map<String, Object> map = new HashMap<>();
+        map.put(rootWord.getRootWord(), rootWord.getPosTag());
+        return map;
     }
+
+
 
     public String printResult(RootWord result) {
         return result.printWord();
@@ -123,5 +109,10 @@ public class WelcomeController {
                 }
             }
         }
+    }
+
+    public interface ResultHandler<T> {
+        RootWord onSuccess();
+        void onFailure(Exception e);
     }
 }

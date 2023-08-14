@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import com.ydsdil.opennlp.WelcomeController.ResultHandler;
 import com.ydsdil.opennlp.model.RootWord;
-import io.reactivex.Observable;
 import opennlp.tools.lemmatizer.DictionaryLemmatizer;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
@@ -38,48 +38,79 @@ public class PosTaggerSingleton {
         return sInstance;
     }
 
-    public Observable<Boolean> setUpOpenNlpPosTagger() throws IOException {
-
-        return Observable.fromCallable(() -> {
+    public void setUpOpenNlpPosTagger(ResultHandler handler) throws IOException {
 
 
-                    InputStream dictLemmatizer;
+        InputStream dictLemmatizer;
 
-                    try {
-                        in = new FileInputStream("en-pos-maxent.bin");
+        try {
+            in = new FileInputStream("en-pos-maxent.bin");
 
-                        posModel = new POSModel(in);
+            posModel = new POSModel(in);
 
-                        tagger = new POSTaggerME(posModel);
+            tagger = new POSTaggerME(posModel);
 
-                        dictLemmatizer = new FileInputStream("en-lemmatizer.txt");
+            dictLemmatizer = new FileInputStream("en-lemmatizer.txt");
 
-                        // loading the lemmatizer with dictionary
-                        lemmatizer = new DictionaryLemmatizer(dictLemmatizer);
+            // loading the lemmatizer with dictionary
+            lemmatizer = new DictionaryLemmatizer(dictLemmatizer);
 
-                        return true;
+            handler.onSuccess();
 
-                    } catch (Exception ex) {
-                        // Log.e("NLP", "message: " + ex.getMessage(), ex);
-                        // proper exception handling here...
-                    } finally {
-                        if (in != null) {
-                            in.close();
-                        }
-                    }
+        } catch (Exception ex) {
+            // Log.e("NLP", "message: " + ex.getMessage(), ex);
+            // proper exception handling here...
 
-                    return false;
-                }
-        );
+            handler.onFailure(ex);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+        }
+
     }
 
-    public Observable<RootWord> findPosWithOpenNlp(String word, String sentence) throws IOException {
+    public static class PosInput{
+        String targetWord;
+        String sentence;
+
+        public String getTargetWord() {
+            return targetWord;
+        }
+
+        public void setTargetWord(String targetWord) {
+            this.targetWord = targetWord;
+        }
+
+        public String getSentence() {
+            return sentence;
+        }
+
+        public void setSentence(String sentence) {
+            this.sentence = sentence;
+        }
+    }
+
+    public RootWord findPosWithOpenNlp(String word, String sentence) throws IOException {
         if (posModel != null) {
-            return Observable.fromCallable(() -> getLemma(sentence, word));
+            return getLemma(sentence, word);
         } else {
             System.out.println("NULL DÖNÜYOR");
-            return setUpOpenNlpPosTagger().flatMap(aBoolean -> Observable.fromCallable(() -> getLemma(sentence, word)));
+            setUpOpenNlpPosTagger(new ResultHandler<PosInput>() {
+                @Override
+                public RootWord onSuccess() {
+                    return getLemma(sentence, word);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+
+                }
+            });
         }
+
+        return null;
+
     }
 
     public boolean isPosTaggerAvailable() {

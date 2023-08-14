@@ -17,8 +17,14 @@ import java.io.InputStream;
 @RestController
 public class WelcomeController {
 
+
+    @GetMapping({"/", "/home"})
+    public String home() {
+        return "Merhaba!";
+    }
+
     @GetMapping("/welcome")
-    public String welcome(){
+    public String welcome() {
 
         final String[] result = {""};
         final long startTime = System.currentTimeMillis();
@@ -40,12 +46,11 @@ public class WelcomeController {
         }
 
 
-
         return "POS Tagger kuruldu.";
     }
 
     @GetMapping("/tagger")
-    public String getPos(){
+    public String getPos() {
 
         final String[] result = {""};
         if (PosTaggerSingleton.INSTANCE().isPosTaggerAvailable()) {
@@ -66,7 +71,7 @@ public class WelcomeController {
         return result[0];
     }
 
-    public String printResult(RootWord result){
+    public String printResult(RootWord result) {
         return result.printWord();
     }
 
@@ -97,28 +102,24 @@ public class WelcomeController {
             double probs[] = posTagger.probs();
 
             System.out.println("Token\t:\tTag\t:\tProbability\n---------------------------------------------");
-            for(int i=0;i<tokens.length;i++){
-                System.out.println(tokens[i]+"\t:\t"+tags[i]+"\t:\t"+probs[i]);
+            for (int i = 0; i < tokens.length; i++) {
+                System.out.println(tokens[i] + "\t:\t" + tags[i] + "\t:\t" + probs[i]);
             }
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             // Model loading failed, handle the error
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             if (tokenModelIn != null) {
                 try {
                     tokenModelIn.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                 }
             }
             if (posModelIn != null) {
                 try {
                     posModelIn.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                 }
             }
         }

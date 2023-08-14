@@ -1,6 +1,6 @@
 package com.ydsdil.opennlp;
 
-import io.reactivex.Scheduler;
+import com.ydsdil.opennlp.model.RootWord;
 import io.reactivex.schedulers.Schedulers;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
@@ -34,7 +34,6 @@ public class WelcomeController {
                     .observeOn(Schedulers.single())
                     .subscribe(aLong -> {
                         System.out.println("POS Tagger kuruldu.");
-                        getPos();
                     });
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -42,10 +41,13 @@ public class WelcomeController {
 
 
 
-        return result[0];
+        return "POS Tagger kuruldu.";
     }
 
-    public void getPos(){
+    @GetMapping("/tagger")
+    public String getPos(){
+
+        final String[] result = {""};
         if (PosTaggerSingleton.INSTANCE().isPosTaggerAvailable()) {
 
             try {
@@ -53,13 +55,19 @@ public class WelcomeController {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.single())
                         .subscribe(rootWord -> {
-                            //result[0] = rootWord.getRootWord() + " | " + rootWord.getPosTag();
-                            // lookUpWord(rootWord);
+                            result[0] = rootWord.getRootWord() + " | " + rootWord.getPosTag();
+                            //printResult(rootWord);
                         });
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
+
+        return result[0];
+    }
+
+    public String printResult(RootWord result){
+        return result.printWord();
     }
 
 

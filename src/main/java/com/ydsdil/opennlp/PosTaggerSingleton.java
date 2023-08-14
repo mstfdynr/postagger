@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import com.ydsdil.opennlp.WelcomeController.ResultHandler;
+import com.ydsdil.opennlp.MainController.ResultHandler;
 import com.ydsdil.opennlp.model.RootWord;
 import opennlp.tools.lemmatizer.DictionaryLemmatizer;
 import opennlp.tools.postag.POSModel;

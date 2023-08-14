@@ -6,8 +6,6 @@ import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-public class WelcomeController {
+public class MainController {
 
 
     @GetMapping({"/", "/home"})
@@ -35,32 +33,32 @@ public class WelcomeController {
         return "Welcome";
     }
 
-    @PostMapping(path = "/tagger", produces= MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getPos(@RequestParam(value="param1") String word, @RequestParam(value="param2") String sentence) {
+    @PostMapping(path = "/tagger", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, Object> getPos(@RequestParam(value = "param1") String word, @RequestParam(value = "param2") String sentence) {
 
         RootWord rootWord = new RootWord();
 
         final String[] result = {""};
 
-            try {
-                rootWord = PosTaggerSingleton.INSTANCE().findPosWithOpenNlp(word, sentence);
+        try {
+            rootWord = PosTaggerSingleton.INSTANCE().findPosWithOpenNlp(word, sentence);
 
-                System.out.println("Deneme: " + rootWord.getPosTag());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            System.out.println("Deneme: " + rootWord.getPosTag());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         Map<String, Object> map = new HashMap<>();
-        map.put(rootWord.getRootWord(), rootWord.getPosTag());
+        if (rootWord.getRootWord() == null) {
+            map.put("error", true);
+            map.put("msg", "Kelime cümle içinde bulunamadı.");
+
+        } else {
+            map.put("false", true);
+            map.put(rootWord.getRootWord(), rootWord.getPosTag());
+        }
         return map;
     }
-
-
-
-    public String printResult(RootWord result) {
-        return result.printWord();
-    }
-
 
     public static void openNlp() {
 
@@ -113,6 +111,7 @@ public class WelcomeController {
 
     public interface ResultHandler<T> {
         RootWord onSuccess();
+
         void onFailure(Exception e);
     }
 }

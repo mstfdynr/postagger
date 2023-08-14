@@ -11,6 +11,15 @@ java {
     sourceCompatibility = '17'
 }
 
+bootJar {
+    archiveClassifier.set('boot')
+}
+
+jar {
+    archiveClassifier.set('')
+}
+
+
 repositories {
     mavenCentral()
 }
@@ -31,3 +40,4 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+

@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -43,24 +44,30 @@ public class MainController {
         try {
             rootWord = PosTaggerSingleton.INSTANCE().findPosWithOpenNlp(word, sentence);
 
-            System.out.println("Deneme: " + rootWord.getPosTag());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Map<String, Object> map = new HashMap<>();
-        if (rootWord.getRootWord() == null) {
+        Map<String, Object> map = new LinkedHashMap<>();
+
+        if(rootWord != null){
+
+            if (rootWord.getRootWord() == null) {
+                map.put("error", true);
+                map.put("msg", "Kelime cümle içinde bulunamadı.");
+
+            } else {
+                map.put("error", false);
+                map.put("originalWord",rootWord.getOriginalWord());
+                map.put("rootWord",rootWord.getRootWord());
+                map.put("posId",rootWord.getPosId());
+                map.put("posTag",rootWord.getPosTag());
+            }
+        }else{
             map.put("error", true);
-            map.put("msg", "Kelime cümle içinde bulunamadı.");
-
-        } else {
-            map.put("error", false);
-            map.put("originalWord",rootWord.getOriginalWord());
-            map.put("rootWord",rootWord.getRootWord());
-            map.put("posId",rootWord.getPosId());
-            map.put("posTag",rootWord.getPosTag());
-
+            map.put("msg", "POS Tagger hazır değil.");
         }
+
         return map;
     }
 

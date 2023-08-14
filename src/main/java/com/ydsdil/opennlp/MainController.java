@@ -54,7 +54,7 @@ public class MainController {
             map.put("msg", "Kelime cümle içinde bulunamadı.");
 
         } else {
-            map.put("false", true);
+            map.put("error", false);
             map.put(rootWord.getRootWord(), rootWord.getPosTag());
         }
         return map;

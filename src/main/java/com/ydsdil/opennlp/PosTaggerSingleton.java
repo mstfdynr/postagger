@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Date;
 
 import com.ydsdil.opennlp.MainController.ResultHandler;
 import com.ydsdil.opennlp.model.RootWord;
@@ -70,7 +71,7 @@ public class PosTaggerSingleton {
 
     }
 
-    public static class PosInput{
+    public static class PosInput {
         String targetWord;
         String sentence;
 
@@ -117,7 +118,10 @@ public class PosTaggerSingleton {
         return posModel != null;
     }
 
+
     private RootWord getLemma(String sentence, String word) {
+
+        Date date = new Date();
 
         sentence = sentence.replaceAll("[?.,:!&]*", "");
 
@@ -135,11 +139,11 @@ public class PosTaggerSingleton {
         if (index >= 0 && index + 1 <= tags.length) {
             rootWord.setOriginalWord(tokens[index]);
 
-            System.out.println("#POSX: " + lemmas[index] + " | TAG: " + tags[index]);
+            System.out.println("#POSX: " + lemmas[index] + " | TAG: " + tags[index] + " | date: " + date.toString());
 
             if (lemmas[index].equals("O")) {
 
-                System.out.println("#POSX: 0 dönüyor NN ");
+                //System.out.println("#POSX: 0 dönüyor NN ");
                 //yalın isimlerde rootWord "0" olarak dönüyor. Bu nedenle orijinal kelimeyi set ediyoruz.
                 rootWord.setRootWord(tokens[index]);
             } else {

@@ -20,6 +20,7 @@ import java.util.Map;
 public class MainController {
 
 
+
     @GetMapping({"/", "/home"})
     public String home() {
         return "Merhaba!";
